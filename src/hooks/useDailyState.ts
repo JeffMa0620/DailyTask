@@ -18,6 +18,7 @@ import { getRotationSuggestion } from '../domain/rotationRules';
 
 export interface DailyState {
   loading: boolean;
+  error: string | undefined;
   currentDate: string;
   taskMasters: TaskMaster[];
   boardTasks: DailyBoardTask[];
@@ -43,6 +44,7 @@ export interface DailyState {
 
 export function useDailyState(): DailyState {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>();
   const [currentDate, setCurrentDate] = useState(todayKey());
   const [taskMasters, setTaskMasters] = useState<TaskMaster[]>([]);
   const [boardTasks, setBoardTasks] = useState<DailyBoardTask[]>([]);
@@ -51,6 +53,7 @@ export function useDailyState(): DailyState {
   const [appState, setAppState] = useState<AppState>();
 
   const reload = useCallback(async () => {
+    setError(undefined);
     const today = todayKey();
     await seedInitialData(db, today);
     const state = await db.appState.get('singleton');
@@ -108,7 +111,11 @@ export function useDailyState(): DailyState {
   }, []);
 
   useEffect(() => {
-    void reload();
+    void reload().catch((caught) => {
+      console.error(caught);
+      setError('よみこめませんでした');
+      setLoading(false);
+    });
   }, [reload]);
 
   const addTaskMaster = useCallback(
@@ -297,6 +304,7 @@ export function useDailyState(): DailyState {
   return useMemo(
     () => ({
       loading,
+      error,
       currentDate,
       taskMasters,
       boardTasks,
@@ -318,6 +326,7 @@ export function useDailyState(): DailyState {
     }),
     [
       loading,
+      error,
       currentDate,
       taskMasters,
       boardTasks,

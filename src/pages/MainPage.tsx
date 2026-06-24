@@ -123,6 +123,19 @@ export function MainPage() {
     return <div className="loading-screen">よみこみちゅう</div>;
   }
 
+  if (state.error) {
+    return (
+      <div className="loading-screen">
+        <div className="load-error">
+          <p>{state.error}</p>
+          <button type="button" onClick={() => void state.reload()}>
+            もういちど
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="app-shell">

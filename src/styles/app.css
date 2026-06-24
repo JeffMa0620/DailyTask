@@ -361,6 +361,12 @@ p {
   font-size: 1.5rem;
 }
 
+.load-error {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
