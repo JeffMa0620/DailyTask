@@ -416,6 +416,10 @@ p {
   background: linear-gradient(#ffeceb, #ffd1cc);
 }
 
+.hidden-file-input {
+  display: none;
+}
+
 .frequency-editor {
   display: flex;
   flex-wrap: wrap;

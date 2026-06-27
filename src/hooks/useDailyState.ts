@@ -15,6 +15,7 @@ import {
   TaskProgress,
 } from '../domain/models';
 import { getRotationSuggestion } from '../domain/rotationRules';
+import { parseTaskMasterTransferFile } from '../domain/taskTransfer';
 
 export interface DailyState {
   loading: boolean;
@@ -38,6 +39,7 @@ export interface DailyState {
   deleteBoardTask: (id: string) => Promise<void>;
   generatePlan: () => Promise<boolean>;
   markDone: (planTaskId: string) => Promise<void>;
+  importTaskMasters: (text: string) => Promise<number>;
   resetToday: () => Promise<void>;
   resetAllData: () => Promise<void>;
 }
@@ -282,6 +284,41 @@ export function useDailyState(): DailyState {
     [reload],
   );
 
+  const importTaskMasters = useCallback(
+    async (text: string) => {
+      const transfer = parseTaskMasterTransferFile(text);
+      const now = new Date().toISOString();
+      let changedCount = 0;
+      await db.transaction('rw', db.taskMasters, async () => {
+        const existingTasks = await db.taskMasters.toArray();
+        const existingByName = new Map(existingTasks.map((task) => [task.name, task]));
+        for (const task of transfer.tasks) {
+          const existing = existingByName.get(task.name);
+          if (existing) {
+            await db.taskMasters.update(existing.id, {
+              icon: task.icon,
+              frequency: task.frequency,
+              updatedAt: now,
+            });
+          } else {
+            await db.taskMasters.add({
+              id: makeId('master'),
+              name: task.name,
+              icon: task.icon,
+              frequency: task.frequency,
+              createdAt: now,
+              updatedAt: now,
+            });
+          }
+          changedCount += 1;
+        }
+      });
+      await reload();
+      return changedCount;
+    },
+    [reload],
+  );
+
   const resetToday = useCallback(async () => {
     await db.transaction('rw', db.dailyBoardTasks, db.dailyPlanTasks, db.appState, async () => {
       await db.dailyBoardTasks.where('date').equals(currentDate).delete();
@@ -335,6 +372,7 @@ export function useDailyState(): DailyState {
       deleteBoardTask,
       generatePlan,
       markDone,
+      importTaskMasters,
       resetToday,
       resetAllData,
     }),
@@ -357,6 +395,7 @@ export function useDailyState(): DailyState {
       deleteBoardTask,
       generatePlan,
       markDone,
+      importTaskMasters,
       resetToday,
       resetAllData,
     ],

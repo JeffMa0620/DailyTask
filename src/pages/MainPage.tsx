@@ -14,6 +14,7 @@ import { useDailyState } from '../hooks/useDailyState';
 import { useLongPress } from '../hooks/useLongPress';
 import { QuadrantType, TaskMaster } from '../domain/models';
 import { getRotationSuggestion } from '../domain/rotationRules';
+import { buildTaskMasterTransferFile } from '../domain/taskTransfer';
 
 type ConfirmState =
   | { type: 'deleteMaster'; task: TaskMaster }
@@ -102,6 +103,29 @@ export function MainPage() {
   async function markDone(id: string) {
     await state.markDone(id);
     setToast('できたね');
+  }
+
+  function exportTasks() {
+    const file = buildTaskMasterTransferFile(state.taskMasters);
+    const blob = new Blob([JSON.stringify(file, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'daily-task-tasks.json';
+    link.click();
+    URL.revokeObjectURL(url);
+    setToast('だしたよ');
+  }
+
+  async function importTasks(file: File) {
+    try {
+      const text = await file.text();
+      await state.importTaskMasters(text);
+      setToast('いれたよ');
+    } catch (caught) {
+      console.error(caught);
+      setNotice('よめなかったよ');
+    }
   }
 
   async function runConfirm() {
@@ -212,6 +236,8 @@ export function MainPage() {
       {settingsOpen ? (
         <ParentSettings
           onClose={() => setSettingsOpen(false)}
+          onExportTasks={exportTasks}
+          onImportTasks={(file) => void importTasks(file)}
           onResetToday={() => setConfirm({ type: 'resetToday' })}
           onResetAll={() => setConfirm({ type: 'resetAll' })}
         />
