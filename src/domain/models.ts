@@ -38,6 +38,8 @@ export interface DailyPlanTask {
   date: string;
   taskMasterId: string;
   boardTaskId: string;
+  displayName: string;
+  icon: string;
   group: PlanGroup;
   status: PlanStatus;
   completedAt?: string;

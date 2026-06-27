@@ -18,14 +18,16 @@ export function buildDailyPlan(boardTasks: DailyBoardTask[], nowIso: string): Da
     const group = planGroupForQuadrant(task.quadrant);
     if (!group) return plan;
     plan.push({
-        id: makeId('plan'),
-        date: task.date,
-        taskMasterId: task.taskMasterId,
-        boardTaskId: task.id,
-        group,
-        status: 'todo',
-        createdAt: nowIso,
-        updatedAt: nowIso,
+      id: makeId('plan'),
+      date: task.date,
+      taskMasterId: task.taskMasterId,
+      boardTaskId: task.id,
+      displayName: task.displayName,
+      icon: task.icon,
+      group,
+      status: 'todo',
+      createdAt: nowIso,
+      updatedAt: nowIso,
     });
     return plan;
   }, []);
@@ -58,6 +60,8 @@ export function upsertDailyPlan(
       date: task.date,
       taskMasterId: task.taskMasterId,
       boardTaskId: task.id,
+      displayName: task.displayName,
+      icon: task.icon,
       group,
       status: existing?.status ?? 'todo',
       completedAt: existing?.completedAt,

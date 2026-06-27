@@ -26,10 +26,12 @@ export function DailyPlan({ planTasks, boardTasks, onDone }: DailyPlanProps) {
             <h3>{groupLabels[group]}</h3>
             {rows.map((plan) => {
               const board = boardById.get(plan.boardTaskId);
+              const icon = plan.icon || board?.icon || '⭐';
+              const displayName = plan.displayName || board?.displayName || 'たすく';
               return (
                 <div className={`plan-item ${plan.status === 'done' ? 'is-done' : ''}`} key={plan.id}>
                   <span>
-                    <span aria-hidden="true">{board?.icon ?? '⭐'}</span> {board?.displayName ?? 'たすく'}
+                    <span aria-hidden="true">{icon}</span> {displayName}
                   </span>
                   <button type="button" onClick={() => onDone(plan.id)} disabled={plan.status === 'done'}>
                     {plan.status === 'done' ? 'できたよ' : 'できた'}

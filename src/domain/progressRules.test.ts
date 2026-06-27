@@ -8,6 +8,8 @@ function planTask(date = '2026-06-24'): DailyPlanTask {
     date,
     taskMasterId: 'master-1',
     boardTaskId: 'board-1',
+    displayName: 'たすく',
+    icon: '⭐',
     group: 'must',
     status: 'todo',
     createdAt: `${date}T00:00:00.000Z`,

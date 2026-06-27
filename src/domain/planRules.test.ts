@@ -50,6 +50,8 @@ describe('planRules', () => {
     );
     expect(plan).toHaveLength(1);
     expect(plan[0].boardTaskId).toBe('1');
+    expect(plan[0].displayName).toBe(selectedTask('1', 'importantUrgent').displayName);
+    expect(plan[0].icon).toBe(selectedTask('1', 'importantUrgent').icon);
   });
 
   it('puts selected fire tasks into the must group without a count limit', () => {
@@ -120,6 +122,8 @@ describe('planRules', () => {
           date: selected.date,
           taskMasterId: selected.taskMasterId,
           boardTaskId: selected.id,
+          displayName: selected.displayName,
+          icon: selected.icon,
           group: 'must',
           status: 'done',
           completedAt: '2026-06-24T09:00:00.000Z',
@@ -132,6 +136,8 @@ describe('planRules', () => {
     expect(result.upserts).toHaveLength(1);
     expect(result.upserts[0].id).toBe('plan-1');
     expect(result.upserts[0].status).toBe('done');
+    expect(result.upserts[0].displayName).toBe(selected.displayName);
+    expect(result.upserts[0].icon).toBe(selected.icon);
   });
 
   it('does not create duplicate plan records for the same board task', () => {
@@ -144,6 +150,8 @@ describe('planRules', () => {
           date: selected.date,
           taskMasterId: selected.taskMasterId,
           boardTaskId: selected.id,
+          displayName: selected.displayName,
+          icon: selected.icon,
           group: 'growth',
           status: 'todo',
           createdAt: '2026-06-24T08:00:00.000Z',
@@ -166,6 +174,8 @@ describe('planRules', () => {
           date: unselected.date,
           taskMasterId: unselected.taskMasterId,
           boardTaskId: unselected.id,
+          displayName: unselected.displayName,
+          icon: unselected.icon,
           group: 'must',
           status: 'todo',
           createdAt: '2026-06-24T08:00:00.000Z',

@@ -78,6 +78,24 @@ export class PlannerDatabase extends Dexie {
           }
         }
       });
+    this.version(4)
+      .stores({
+        taskMasters: 'id, name, createdAt',
+        dailyBoardTasks: 'id, [date+taskMasterId], date, taskMasterId, quadrant',
+        dailyPlanTasks: 'id, date, taskMasterId, boardTaskId, group, status',
+        taskProgress: 'taskMasterId',
+        completionHistory: 'id, [taskMasterId+date], date, taskMasterId',
+        appState: 'id',
+      })
+      .upgrade(async (tx) => {
+        const boardTasks = await tx.table<DailyBoardTask, string>('dailyBoardTasks').toArray();
+        const boardById = new Map(boardTasks.map((task) => [task.id, task]));
+        await tx.table<DailyPlanTask, string>('dailyPlanTasks').toCollection().modify((plan) => {
+          const board = boardById.get(plan.boardTaskId);
+          plan.displayName = plan.displayName || board?.displayName || 'たすく';
+          plan.icon = plan.icon || board?.icon || '⭐';
+        });
+      });
   }
 }
 

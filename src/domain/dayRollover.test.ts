@@ -8,6 +8,8 @@ function planTask(status: DailyPlanTask['status']): DailyPlanTask {
     date: '2026-06-23',
     taskMasterId: `master-${status}`,
     boardTaskId: `board-${status}`,
+    displayName: `たすく-${status}`,
+    icon: '⭐',
     group: 'must',
     status,
     createdAt: '2026-06-23T00:00:00.000Z',

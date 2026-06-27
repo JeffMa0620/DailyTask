@@ -223,7 +223,21 @@ export function useDailyState(): DailyState {
 
   const deleteBoardTask = useCallback(
     async (id: string) => {
-      await db.dailyBoardTasks.delete(id);
+      const task = await db.dailyBoardTasks.get(id);
+      await db.transaction('rw', db.dailyBoardTasks, db.dailyPlanTasks, async () => {
+        if (task) {
+          const plans = await db.dailyPlanTasks.where('boardTaskId').equals(id).toArray();
+          const now = new Date().toISOString();
+          for (const plan of plans) {
+            await db.dailyPlanTasks.update(plan.id, {
+              displayName: plan.displayName || task.displayName,
+              icon: plan.icon || task.icon,
+              updatedAt: now,
+            });
+          }
+        }
+        await db.dailyBoardTasks.delete(id);
+      });
       await reload();
     },
     [reload],
