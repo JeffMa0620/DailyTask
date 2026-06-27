@@ -1,14 +1,21 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { validateKidText } from '../domain/validation';
 
 interface NewTaskFormProps {
   onAdd: (name: string, icon?: string) => Promise<void>;
+  resetSignal: number;
 }
 
-export function NewTaskForm({ onAdd }: NewTaskFormProps) {
+export function NewTaskForm({ onAdd, resetSignal }: NewTaskFormProps) {
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('⭐');
   const [error, setError] = useState<string>();
+
+  useEffect(() => {
+    setName('');
+    setIcon('⭐');
+    setError(undefined);
+  }, [resetSignal]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -37,7 +44,7 @@ export function NewTaskForm({ onAdd }: NewTaskFormProps) {
         <input
           aria-label="なまえ"
           value={name}
-          placeholder="ひらがなで いれてね"
+          placeholder="なまえを いれてね"
           onChange={(event) => setName(event.target.value)}
         />
         <button type="submit">ついか</button>

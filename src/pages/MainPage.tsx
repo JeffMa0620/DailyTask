@@ -27,6 +27,7 @@ export function MainPage() {
   const [confirm, setConfirm] = useState<ConfirmState>();
   const [notice, setNotice] = useState<string>();
   const [toast, setToast] = useState<string>();
+  const [taskFormResetSignal, setTaskFormResetSignal] = useState(0);
   const longPress = useLongPress(() => setSettingsOpen(true));
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -91,11 +92,13 @@ export function MainPage() {
     }
     if (confirm.type === 'resetToday') {
       await state.resetToday();
+      setTaskFormResetSignal((value) => value + 1);
       setSettingsOpen(false);
       setToast('きょうを けしたよ');
     }
     if (confirm.type === 'resetAll') {
       await state.resetAllData();
+      setTaskFormResetSignal((value) => value + 1);
       setSettingsOpen(false);
       setToast('ぜんぶ もどしたよ');
     }
@@ -155,7 +158,7 @@ export function MainPage() {
           <button className="settings-button" type="button" aria-label="おとなの せってい" {...longPress}>
             ⚙
           </button>
-          <NewTaskForm onAdd={state.addTaskMaster} />
+          <NewTaskForm onAdd={state.addTaskMaster} resetSignal={taskFormResetSignal} />
           <CommonTaskList
             tasks={state.taskMasters}
             addedTaskIds={addedTaskIds}

@@ -25,7 +25,13 @@ export function CommonTaskList({ tasks, addedTaskIds, progress, onEdit, onDelete
               dragId={`master:${task.id}`}
               icon={task.icon}
               name={task.name}
-              note={added ? 'はいってる' : progressRow ? `${progressRow.totalCompletedCount}かい` : undefined}
+              note={
+                added
+                  ? 'はいってる'
+                  : progressRow && progressRow.totalCompletedCount > 0
+                    ? `${progressRow.totalCompletedCount}かい`
+                    : undefined
+              }
               className={added ? 'is-added' : ''}
               actions={
                 <>
