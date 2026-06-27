@@ -227,8 +227,19 @@ p {
 }
 
 .task-card.is-dragging {
-  opacity: 0.86;
+  opacity: 0.34;
   z-index: 20;
+}
+
+.drag-overlay-card {
+  pointer-events: none;
+  transform: rotate(-2deg);
+}
+
+.drag-overlay-card .task-card {
+  width: min(240px, 72vw);
+  opacity: 0.98;
+  box-shadow: 0 12px 30px rgba(54, 42, 24, 0.24), 0 6px 0 rgba(168, 132, 44, 0.42);
 }
 
 .task-card.is-added {

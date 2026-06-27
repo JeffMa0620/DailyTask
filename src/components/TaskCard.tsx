@@ -17,7 +17,7 @@ export function TaskCard({ id, icon, name, dragId, note, className = '', actions
     id: dragId ?? id,
     disabled: !dragId,
   });
-  const style: CSSProperties = draggable.transform
+  const style: CSSProperties = draggable.transform && !draggable.isDragging
     ? {
         transform: `translate3d(${draggable.transform.x}px, ${draggable.transform.y}px, 0)`,
       }

@@ -1,4 +1,4 @@
-import { DndContext, DragEndEvent, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { useMemo, useState } from 'react';
 import { CommonTaskList } from '../components/CommonTaskList';
 import { ConfirmModal } from '../components/ConfirmModal';
@@ -8,6 +8,7 @@ import { NoticeModal } from '../components/NoticeModal';
 import { ParentSettings } from '../components/ParentSettings';
 import { QuadrantBoard } from '../components/QuadrantBoard';
 import { TaskEditModal } from '../components/TaskEditModal';
+import { TaskCard } from '../components/TaskCard';
 import { Toast } from '../components/Toast';
 import { useDailyState } from '../hooks/useDailyState';
 import { useLongPress } from '../hooks/useLongPress';
@@ -28,6 +29,7 @@ export function MainPage() {
   const [notice, setNotice] = useState<string>();
   const [toast, setToast] = useState<string>();
   const [taskFormResetSignal, setTaskFormResetSignal] = useState(0);
+  const [activeDragId, setActiveDragId] = useState<string>();
   const longPress = useLongPress(() => setSettingsOpen(true));
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -39,7 +41,25 @@ export function MainPage() {
     [state.boardTasks],
   );
 
+  const activeDragTask = useMemo(() => {
+    if (!activeDragId) return undefined;
+    if (activeDragId.startsWith('master:')) {
+      const task = state.taskMasters.find((item) => item.id === activeDragId.replace('master:', ''));
+      return task ? { id: task.id, icon: task.icon, name: task.name } : undefined;
+    }
+    if (activeDragId.startsWith('board:')) {
+      const task = state.boardTasks.find((item) => item.id === activeDragId.replace('board:', ''));
+      return task ? { id: task.id, icon: task.icon, name: task.displayName } : undefined;
+    }
+    return undefined;
+  }, [activeDragId, state.boardTasks, state.taskMasters]);
+
+  function handleDragStart(event: DragStartEvent) {
+    setActiveDragId(String(event.active.id));
+  }
+
   async function handleDragEnd(event: DragEndEvent) {
+    setActiveDragId(undefined);
     const overId = String(event.over?.id ?? '');
     const activeId = String(event.active.id);
     if (!overId.startsWith('quadrant:')) return;
@@ -140,7 +160,12 @@ export function MainPage() {
   }
 
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={() => setActiveDragId(undefined)}
+    >
       <div className="app-shell">
         <QuadrantBoard
           tasks={state.boardTasks}
@@ -210,6 +235,13 @@ export function MainPage() {
         />
       ) : null}
       {notice ? <NoticeModal message={notice} onClose={() => setNotice(undefined)} /> : null}
+      <DragOverlay zIndex={100}>
+        {activeDragTask ? (
+          <div className="drag-overlay-card">
+            <TaskCard id={`overlay:${activeDragTask.id}`} icon={activeDragTask.icon} name={activeDragTask.name} />
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }
