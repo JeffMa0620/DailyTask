@@ -9,4 +9,5 @@ export const seedTasks: Array<Pick<TaskMaster, 'name' | 'icon' | 'frequency'>> =
   { name: 'ポケモンかんじどり', icon: '✏️', frequency: { type: 'free' } },
   { name: 'ウクレレ', icon: '🎸', frequency: { type: 'free' } },
   { name: 'くもん', icon: '📝', frequency: { type: 'free' } },
+  { name: 'ThinkThink', icon: '🎮', frequency: { type: 'free' } },
 ];
