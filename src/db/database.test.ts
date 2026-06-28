@@ -15,7 +15,19 @@ describe('database seed', () => {
     database = new PlannerDatabase(`test-${crypto.randomUUID()}`);
     await seedInitialData(database, '2026-06-24');
     await seedInitialData(database, '2026-06-24');
-    expect(await database.taskMasters.count()).toBe(8);
+    const tasks = await database.taskMasters.orderBy('createdAt').toArray();
+    expect(tasks).toHaveLength(8);
+    expect(tasks.map((task) => task.name).sort()).toEqual([
+      'English',
+      'Kahn',
+      'えほん',
+      'くもん',
+      'こくごのえほん',
+      'すとれっち',
+      'ウクレレ',
+      'ポケモンかんじどり',
+    ].sort());
+    expect(tasks.every((task) => task.frequency.type === 'free')).toBe(true);
     expect(await database.appState.get('singleton')).toMatchObject({
       currentDate: '2026-06-24',
       planGenerated: false,

@@ -14,6 +14,17 @@ function seedTaskId(name: string): string {
   return `seed-${name}`;
 }
 
+const seedTaskRenames = [
+  { from: 'うくれれ', to: 'ウクレレ', icon: '🎸' },
+  { from: 'えいごれんしゅう', to: 'English', icon: '🔤' },
+  { from: 'かんあぷり', to: 'Kahn', icon: '📱' },
+  { from: 'かんじ', to: 'ポケモンかんじどり', icon: '✏️' },
+  { from: 'こくごれんしゅう', to: 'こくごのえほん', icon: '📖' },
+] as const;
+
+const removedSeedTaskNames = ['おえかき'] as const;
+const freeSeedTaskNames = ['すとれっち', 'えほん'] as const;
+
 export class PlannerDatabase extends Dexie {
   taskMasters!: Table<TaskMaster, string>;
   dailyBoardTasks!: Table<DailyBoardTask, string>;
@@ -95,6 +106,74 @@ export class PlannerDatabase extends Dexie {
           plan.displayName = plan.displayName || board?.displayName || 'たすく';
           plan.icon = plan.icon || board?.icon || '⭐';
         });
+      });
+    this.version(5)
+      .stores({
+        taskMasters: 'id, name, createdAt',
+        dailyBoardTasks: 'id, [date+taskMasterId], date, taskMasterId, quadrant',
+        dailyPlanTasks: 'id, date, taskMasterId, boardTaskId, group, status',
+        taskProgress: 'taskMasterId',
+        completionHistory: 'id, [taskMasterId+date], date, taskMasterId',
+        appState: 'id',
+      })
+      .upgrade(async (tx) => {
+        const now = new Date().toISOString();
+        const taskMasters = tx.table<TaskMaster, string>('taskMasters');
+        const dailyBoardTasks = tx.table<DailyBoardTask, string>('dailyBoardTasks');
+        const dailyPlanTasks = tx.table<DailyPlanTask, string>('dailyPlanTasks');
+        const taskProgress = tx.table<TaskProgress, string>('taskProgress');
+        const completionHistory = tx.table<CompletionHistory, string>('completionHistory');
+
+        for (const task of seedTaskRenames) {
+          const existing = await taskMasters.where('name').equals(task.from).first();
+          if (!existing) continue;
+          await taskMasters.update(existing.id, {
+            name: task.to,
+            icon: task.icon,
+            frequency: { type: 'free' },
+            updatedAt: now,
+          });
+          await dailyBoardTasks.where('taskMasterId').equals(existing.id).modify((boardTask) => {
+            boardTask.displayName = task.to;
+            boardTask.icon = task.icon;
+            boardTask.updatedAt = now;
+          });
+          await dailyPlanTasks.where('taskMasterId').equals(existing.id).modify((planTask) => {
+            planTask.displayName = task.to;
+            planTask.icon = task.icon;
+            planTask.updatedAt = now;
+          });
+        }
+
+        for (const name of freeSeedTaskNames) {
+          const existing = await taskMasters.where('name').equals(name).first();
+          if (existing) {
+            await taskMasters.update(existing.id, { frequency: { type: 'free' }, updatedAt: now });
+          }
+        }
+
+        for (const name of removedSeedTaskNames) {
+          const removedTasks = await taskMasters.where('name').equals(name).toArray();
+          for (const task of removedTasks) {
+            await taskMasters.delete(task.id);
+            await dailyBoardTasks.where('taskMasterId').equals(task.id).delete();
+            await dailyPlanTasks.where('taskMasterId').equals(task.id).delete();
+            await taskProgress.delete(task.id);
+            await completionHistory.where('taskMasterId').equals(task.id).delete();
+          }
+        }
+
+        const hasKumon = await taskMasters.where('name').equals('くもん').first();
+        if (!hasKumon) {
+          await taskMasters.add({
+            id: seedTaskId('くもん'),
+            name: 'くもん',
+            icon: '📝',
+            frequency: { type: 'free' },
+            createdAt: now,
+            updatedAt: now,
+          });
+        }
       });
   }
 }
