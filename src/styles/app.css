@@ -195,6 +195,13 @@ p {
   padding-inline: 0.3rem;
 }
 
+.common-task-area {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  gap: 10px;
+  align-items: stretch;
+}
+
 .common-task-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -226,6 +233,22 @@ p {
 
 .common-task-list::-webkit-scrollbar-thumb:hover {
   background: #6f6b68;
+}
+
+.common-scroll-buttons {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  min-height: 150px;
+}
+
+.common-scroll-buttons button {
+  min-height: 70px;
+  border-radius: 18px;
+  background: linear-gradient(#fffdfa, #f2eadc);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .task-card {
@@ -542,6 +565,14 @@ p {
   .common-task-list {
     grid-template-columns: 1fr;
     max-height: none;
+  }
+
+  .common-task-area {
+    grid-template-columns: 1fr;
+  }
+
+  .common-scroll-buttons {
+    display: none;
   }
 
   .plan-item {
