@@ -36,7 +36,7 @@ npm run build
 本地开发地址通常是：
 
 ```text
-http://127.0.0.1:5173/
+http://127.0.0.1:5173/DailyTask/
 ```
 
 如果需要指定地址和端口：
@@ -54,7 +54,7 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 - `src/hooks/useDailyState.ts`
   - 应用状态和 IndexedDB 操作集中地。
-  - 负责初始化 seed 数据、换日处理、增删改任务、拖入象限、星星切换、生成计划、打卡、重置。
+  - 负责初始化 seed 数据、换日处理、增删改任务、拖入象限、星星切换、生成计划、打卡、重置、常用任务导入。
   - 页面若数据库加载失败，会返回 `error`，避免一直停在 `よみこみちゅう`。
 
 - `src/domain/`
@@ -65,10 +65,11 @@ npm run dev -- --host 127.0.0.1 --port 5173
   - `rotationRules.ts`：轮换建议。
   - `dayRollover.ts`：换日时处理未完成计划。
   - `validation.ts`：儿童可见输入校验。
+  - `taskTransfer.ts`：常用任务 JSON 导入导出格式与解析。
 
 - `src/db/`
   - `database.ts`：Dexie schema、数据库版本迁移、初始数据 seed。
-  - `seedData.ts`：首次启动的 8 个常用任务。
+  - `seedData.ts`：首次启动的 9 个常用任务。
 
 - `src/components/`
   - UI 组件。
@@ -78,7 +79,7 @@ npm run dev -- --host 127.0.0.1 --port 5173
   - `NewTaskForm.tsx`：新增任务表单。
   - `DailyPlan.tsx`：今日计划显示。
   - `TaskEditModal.tsx` / `FrequencyEditor.tsx`：任务编辑和频率设置。
-  - `ParentSettings.tsx`：家长设置。
+  - `ParentSettings.tsx`：家长设置、常用任务导入导出入口。
   - `ConfirmModal.tsx` / `NoticeModal.tsx` / `Toast.tsx`：提示与确认。
 
 - `src/styles/app.css`
@@ -241,6 +242,9 @@ kids-task-planner
 - v1：初始表。
 - v2：为 `taskMasters` 增加 `createdAt` 索引，并为旧 `DailyBoardTask` 补 `selectedForToday=false`。
 - v3：清理开发阶段可能重复生成的未引用 seed 任务，并使用稳定 seed id。
+- v4：为 `DailyPlanTask` 补 `displayName` 和 `icon`，避免删除象限副本后计划显示退回默认值。
+- v5：更新默认常用任务名称与频率，删除旧 seed `おえかき`，追加 `くもん`。
+- v6：为既有浏览器数据追加 `ThinkThink`。
 
 重要注意：
 
@@ -250,16 +254,17 @@ kids-task-planner
 
 ## 初始常用任务
 
-首次启动会创建 8 个常用任务：
+首次启动会创建 9 个常用任务，频率全部是 `free`：
 
-- `かんあぷり` 📱
-- `えいごれんしゅう` 🔤
-- `こくごれんしゅう` 📖
+- `Kahn` 📱
+- `English` 🔤
+- `こくごのえほん` 📖
 - `すとれっち` 💃
-- `おえかき` 🎨
 - `えほん` 📚
-- `かんじ` ✏️
-- `うくれれ` 🎸
+- `ポケモンかんじどり` ✏️
+- `ウクレレ` 🎸
+- `くもん` 📝
+- `ThinkThink` 🎮
 
 seed id 使用稳定格式：
 
@@ -267,10 +272,40 @@ seed id 使用稳定格式：
 seed-${name}
 ```
 
+## 常用任务导入导出
+
+家长设置里有两个按钮：
+
+- `だす`：导出当前常用任务 JSON。
+- `いれる`：导入常用任务 JSON。
+
+导出格式由 `src/domain/taskTransfer.ts` 管理：
+
+```ts
+{
+  version: 1,
+  tasks: [
+    {
+      name: string,
+      icon: string,
+      frequency: TaskFrequency
+    }
+  ]
+}
+```
+
+导入策略：
+
+- 按 `name` 合并。
+- 同名任务存在时，只更新 `icon` 和 `frequency`。
+- 同名任务不存在时，新增常用任务。
+- 不删除当前已有任务。
+- 不影响四象限副本、今日计划、完成历史和进度。
+
 ## UI 与文案约定
 
-- 儿童可见文字应使用平假名、数字和 emoji。
-- 避免儿童界面出现汉字、中文、英文和片假名。
+- 系统固定文案应尽量使用平假名、数字和 emoji。
+- 任务名属于用户内容，允许平假名、片假名、汉字、英文、数字和 emoji。
 - UI 风格应保持柔和、明亮、儿童友好，不要做成商业后台风格。
 - 桌面端布局：
   - 左侧约 65%：2x2 四象限。
