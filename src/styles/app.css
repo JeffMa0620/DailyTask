@@ -201,7 +201,31 @@ p {
   gap: 10px;
   max-height: 30vh;
   overflow: auto;
-  padding: 2px 4px 8px 0;
+  padding: 2px 14px 8px 0;
+  scrollbar-color: #8c8a88 #f3e9dd;
+  scrollbar-width: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.common-task-list::-webkit-scrollbar {
+  width: 24px;
+}
+
+.common-task-list::-webkit-scrollbar-track {
+  border: 3px solid #fff7ec;
+  border-radius: 999px;
+  background: #f3e9dd;
+}
+
+.common-task-list::-webkit-scrollbar-thumb {
+  min-height: 72px;
+  border: 5px solid #f3e9dd;
+  border-radius: 999px;
+  background: #8c8a88;
+}
+
+.common-task-list::-webkit-scrollbar-thumb:hover {
+  background: #6f6b68;
 }
 
 .task-card {
