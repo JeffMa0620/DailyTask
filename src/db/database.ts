@@ -199,6 +199,35 @@ export class PlannerDatabase extends Dexie {
           });
         }
       });
+    this.version(7)
+      .stores({
+        taskMasters: 'id, name, createdAt',
+        dailyBoardTasks: 'id, [date+taskMasterId], date, taskMasterId, quadrant',
+        dailyPlanTasks: 'id, date, taskMasterId, boardTaskId, group, status',
+        taskProgress: 'taskMasterId',
+        completionHistory: 'id, [taskMasterId+date], date, taskMasterId',
+        appState: 'id',
+      })
+      .upgrade(async (tx) => {
+        const taskMasters = tx.table<TaskMaster, string>('taskMasters');
+        const now = new Date().toISOString();
+        const additions = [
+          { name: 'しゅくだい', icon: '📘' },
+          { name: 'がっこうのじゅんび', icon: '🏫' },
+        ];
+        for (const task of additions) {
+          const existing = await taskMasters.where('name').equals(task.name).first();
+          if (existing) continue;
+          await taskMasters.add({
+            id: seedTaskId(task.name),
+            name: task.name,
+            icon: task.icon,
+            frequency: { type: 'free' },
+            createdAt: now,
+            updatedAt: now,
+          });
+        }
+      });
   }
 }
 

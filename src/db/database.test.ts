@@ -16,14 +16,16 @@ describe('database seed', () => {
     await seedInitialData(database, '2026-06-24');
     await seedInitialData(database, '2026-06-24');
     const tasks = await database.taskMasters.orderBy('createdAt').toArray();
-    expect(tasks).toHaveLength(9);
+    expect(tasks).toHaveLength(11);
     expect(tasks.map((task) => task.name).sort()).toEqual([
       'English',
       'Kahn',
       'ThinkThink',
+      'がっこうのじゅんび',
       'えほん',
       'くもん',
       'こくごのえほん',
+      'しゅくだい',
       'すとれっち',
       'ウクレレ',
       'ポケモンかんじどり',

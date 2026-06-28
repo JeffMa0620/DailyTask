@@ -10,4 +10,6 @@ export const seedTasks: Array<Pick<TaskMaster, 'name' | 'icon' | 'frequency'>> =
   { name: 'ウクレレ', icon: '🎸', frequency: { type: 'free' } },
   { name: 'くもん', icon: '📝', frequency: { type: 'free' } },
   { name: 'ThinkThink', icon: '🎮', frequency: { type: 'free' } },
+  { name: 'しゅくだい', icon: '📘', frequency: { type: 'free' } },
+  { name: 'がっこうのじゅんび', icon: '🏫', frequency: { type: 'free' } },
 ];
