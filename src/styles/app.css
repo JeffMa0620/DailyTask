@@ -208,7 +208,7 @@ p {
 }
 
 .common-task-list::-webkit-scrollbar {
-  width: 24px;
+  width: 36px;
 }
 
 .common-task-list::-webkit-scrollbar-track {
@@ -218,8 +218,8 @@ p {
 }
 
 .common-task-list::-webkit-scrollbar-thumb {
-  min-height: 72px;
-  border: 5px solid #f3e9dd;
+  min-height: 92px;
+  border: 6px solid #f3e9dd;
   border-radius: 999px;
   background: #8c8a88;
 }
