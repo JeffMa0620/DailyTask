@@ -69,13 +69,13 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 - `src/db/`
   - `database.ts`：Dexie schema、数据库版本迁移、初始数据 seed。
-  - `seedData.ts`：首次启动的 9 个常用任务。
+  - `seedData.ts`：首次启动的 11 个常用任务。
 
 - `src/components/`
   - UI 组件。
   - `QuadrantBoard.tsx` / `Quadrant.tsx`：四象限。
   - `TaskCard.tsx`：可拖拽任务卡。
-  - `CommonTaskList.tsx`：常用任务区。
+  - `CommonTaskList.tsx`：常用任务区，包含 `↑` / `↓` 手动滚动按钮。
   - `NewTaskForm.tsx`：新增任务表单。
   - `DailyPlan.tsx`：今日计划显示。
   - `TaskEditModal.tsx` / `FrequencyEditor.tsx`：任务编辑和频率设置。
@@ -245,6 +245,7 @@ kids-task-planner
 - v4：为 `DailyPlanTask` 补 `displayName` 和 `icon`，避免删除象限副本后计划显示退回默认值。
 - v5：更新默认常用任务名称与频率，删除旧 seed `おえかき`，追加 `くもん`。
 - v6：为既有浏览器数据追加 `ThinkThink`。
+- v7：为既有浏览器数据追加 `しゅくだい` 和 `がっこうのじゅんび`。
 
 重要注意：
 
@@ -254,7 +255,7 @@ kids-task-planner
 
 ## 初始常用任务
 
-首次启动会创建 9 个常用任务，频率全部是 `free`：
+首次启动会创建 11 个常用任务，频率全部是 `free`：
 
 - `Kahn` 📱
 - `English` 🔤
@@ -265,6 +266,8 @@ kids-task-planner
 - `ウクレレ` 🎸
 - `くもん` 📝
 - `ThinkThink` 🎮
+- `しゅくだい` 📘
+- `がっこうのじゅんび` 🏫
 
 seed id 使用稳定格式：
 
